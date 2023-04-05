@@ -1,6 +1,6 @@
 <?php
 
-namespace Barguia\Php74Rdkafka;
+namespace Barguia\PhpRdkafka;
 
 use RdKafka\Conf;
 use RdKafka\KafkaConsumer;
@@ -46,14 +46,13 @@ class KafkaService
         $conf->setRebalanceCb(function (KafkaConsumer $kafka, $err, array $partitions = null) {
             switch ($err) {
                 case RD_KAFKA_RESP_ERR__ASSIGN_PARTITIONS:
-                    echo "Assign: ";
-                    var_dump($partitions);
+                    echo "Assign partition".PHP_EOL;
                     $kafka->assign($partitions);
                     break;
 
                 case RD_KAFKA_RESP_ERR__REVOKE_PARTITIONS:
-                    echo "Revoke: ";
-                    var_dump($partitions);
+                    echo "Revoke partition".PHP_EOL;
+                    #var_dump($partitions);
                     $kafka->assign(null);
                     break;
 
@@ -79,11 +78,11 @@ class KafkaService
             case RD_KAFKA_RESP_ERR__PARTITION_EOF:
                 #echo "No more messages; will wait for more\n";
                 /**
-                 * não há mensagens pendentes no tópico
+                 * nao há mensagens pendentes no tópico
                  */
                 break;
             case RD_KAFKA_RESP_ERR__TIMED_OUT:
-                echo "Timed out\n";
+                # echo "Timed out\n";
                 break;
             default:
                 throw new \Exception($message->errstr(), $message->err);

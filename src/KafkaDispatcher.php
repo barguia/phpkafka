@@ -1,6 +1,6 @@
 <?php
 
-namespace Barguia\Php74Rdkafka;
+namespace Barguia\PhpRdkafka;
 
 use RdKafka\Conf;
 use RdKafka\Producer;
@@ -27,16 +27,18 @@ class KafkaDispatcher
         return $conf;
     }
 
-    public function send(string $topic, string $key, $value, array $headers = []): bool
+    public function send(string $topic, string $value, string $key = '', ?array $headers = []): bool
     {
         $topico = $this->producer->newTopic($topic);
 
-        $topico->produce(
+        $topico->producev(
             RD_KAFKA_PARTITION_UA,
             0,
             serialize($value),
-            $key
+            $key,
+            $headers
         );
+
         $this->producer->poll(0);
 
         for ($flushRetries = 0; $flushRetries < 10; $flushRetries++) {
@@ -52,8 +54,10 @@ class KafkaDispatcher
         return true;
     }
 
+    /*
     public function sendBatch(array $messages)
     {
         $this->producer->sendBatch($messages);
     }
+    */
 }

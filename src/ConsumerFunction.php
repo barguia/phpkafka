@@ -1,6 +1,6 @@
 <?php
 
-namespace Barguia\Php74Rdkafka;
+namespace Barguia\PhpRdkafka;
 
 use RdKafka\Message;
 

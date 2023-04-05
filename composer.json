@@ -1,9 +1,9 @@
 {
-    "name": "barguia/php7.4-rdkafka",
+    "name": "barguia/php-rdkafka",
     "description": "Funcoes comuns do Kafka com PHP 7.4",
     "autoload": {
         "psr-4": {
-            "Barguia\\Php74Rdkafka\\": "src/"
+            "Barguia\\PhpRdkafka\\": "src/"
         }
     },
     "license": "MIT",
