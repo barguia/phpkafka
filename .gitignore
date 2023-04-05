@@ -1,0 +1,8 @@
+/vendor
+/.idea
+.env
+.env.testing
+composer.lock
+producer.php
+consumer.php
+.vscode
