@@ -20,8 +20,6 @@ https://github.com/arnaud-lb/php-rdkafka
 
 use Barguia\PhpRdkafka\KafkaDispatcher;
 
-require "vendor/autoload.php";
-
 $config = array(
     'metadata.broker.list' => 'localhost:9092',
 );
@@ -35,8 +33,6 @@ $producer->send('topic_name', 'message', 'key', $headers);
 
 ```php
 <?php
-
-require "vendor/autoload.php";
 
 use Barguia\PhpRdkafka\ConsumerFunction;
 use Barguia\PhpRdkafka\KafkaService;
