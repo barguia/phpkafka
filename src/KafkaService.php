@@ -13,7 +13,7 @@ class KafkaService
     private ConfiguracaoDefault $config;
     private array $configuracao;
     private $topic;
-    private int $autoCommit;
+    private Message $message;
 
     /**
      * @param String $groupId
@@ -24,6 +24,7 @@ class KafkaService
     {
         $this->parse = $parse;
         $this->groupId = $groupId;
+        $this->topic = $topic;
 
         $this->configuracao =array_merge($config, [
             'auto.commit.interval.ms' => 0,
@@ -32,12 +33,12 @@ class KafkaService
 
         $this->config = new ConfiguracaoDefault($this->configuracao);
 
-        $this->setConsumer($topic);
+        $this->setConsumer();
     }
 
-    public function commit($message): void
+    public function commit(): void
     {
-        $this->consumer->commit($message);
+        $this->consumer->commit($this->message);
     }
 
     private function configuracao(): Conf
@@ -46,13 +47,12 @@ class KafkaService
         $conf->setRebalanceCb(function (KafkaConsumer $kafka, $err, array $partitions = null) {
             switch ($err) {
                 case RD_KAFKA_RESP_ERR__ASSIGN_PARTITIONS:
-                    echo "Assign partition".PHP_EOL;
+                    echo "Assign partitions".PHP_EOL;
                     $kafka->assign($partitions);
                     break;
 
                 case RD_KAFKA_RESP_ERR__REVOKE_PARTITIONS:
-                    echo "Revoke partition".PHP_EOL;
-                    #var_dump($partitions);
+                    echo "Revoke partitions".PHP_EOL;
                     $kafka->assign(null);
                     break;
 
@@ -60,8 +60,7 @@ class KafkaService
                     throw new \Exception($err);
             }
         });
-
-
+        
         $this->config->setConfiguracao($conf);
 
         return $conf;
@@ -69,38 +68,46 @@ class KafkaService
 
     public function consumeUmaMenagem(): Message
     {
-        $message = $this->consumer->consume(120 * 1000);
-        echo "Iniciado Worker - Aguardando por novas mensagens".PHP_EOL;
-        switch ($message->err) {
+        $this->message = $this->consumer->consume(120 * 1000);
+        switch ($this->message->err) {
             case RD_KAFKA_RESP_ERR_NO_ERROR:
-                $this->parse->consume($message);
+                $this->parse->consume(unserialize($this->message->payload), $this->message->headers);
                 break;
             case RD_KAFKA_RESP_ERR__PARTITION_EOF:
-                #echo "No more messages; will wait for more\n";
                 /**
-                 * nao há mensagens pendentes no tópico
+                 * nao há mensagens na particacao do Topico
+                 * Aguardando novas mensagens
                  */
                 break;
             case RD_KAFKA_RESP_ERR__TIMED_OUT:
-                # echo "Timed out\n";
+                echo "Timed out".PHP_EOL;
                 break;
             default:
-                throw new \Exception($message->errstr(), $message->err);
+                throw new \Exception($this->message->errstr(), $this->message->err);
                 break;
         }
-        return $message;
+        return $this->message;
     }
 
     public function run(): void
     {
+        echo "Inicio: ".date('Y-m-d H:i:s').PHP_EOL;
+        echo "Consummer: {$this->groupId} ".PHP_EOL;
+        echo "Topic: ".$this->topic.PHP_EOL.PHP_EOL;
+
         while (true) {
             $this->consumeUmaMenagem();
         }
     }
 
-    private function setConsumer($topic): void
+    public function getMessage(): Message
+    {
+        return $this->message;
+    }
+
+    private function setConsumer(): void
     {
         $this->consumer = new KafkaConsumer($this->configuracao());
-        $this->consumer->subscribe([$topic]);
+        $this->consumer->subscribe([$this->topic]);
     }
 }

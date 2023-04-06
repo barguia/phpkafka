@@ -27,7 +27,7 @@ class KafkaDispatcher
         return $conf;
     }
 
-    public function send(string $topic, string $value, string $key = '', ?array $headers = []): bool
+    public function send(string $topic, $value, string $key = '', ?array $headers = []): bool
     {
         $topico = $this->producer->newTopic($topic);
 

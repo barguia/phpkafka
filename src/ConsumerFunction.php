@@ -6,5 +6,5 @@ use RdKafka\Message;
 
 interface ConsumerFunction
 {
-    public function consume(Message $message);
+    public function consume(string $message, array $headers);
 }
