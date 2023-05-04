@@ -80,7 +80,7 @@ class KafkaService
                  */
                 break;
             case RD_KAFKA_RESP_ERR__TIMED_OUT:
-                echo "Timed out".PHP_EOL;
+                #echo "Timed out".PHP_EOL;
                 break;
             default:
                 throw new \Exception($this->message->errstr(), $this->message->err);
