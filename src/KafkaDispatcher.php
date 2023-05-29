@@ -20,7 +20,13 @@ class KafkaDispatcher
     {
         $conf = new Conf();
         $conf->setErrorCb(function ($kafka, $err, $reason) {
-            printf("Kafka error: %s (reason: %s)\n", rd_kafka_err2str($err), $reason);
+            sprintf("Kafka error: %s (reason: %s)\n", rd_kafka_err2str($err), $reason);
+            throw new \Exception(sprintf("Kafka error: %s (reason: %s)\n", rd_kafka_err2str($err), $reason));
+        });
+        $conf->setDrMsgCb(function ($kafka, $message) {
+            if ($message->err) {
+                throw new \Exception(sprintf("Kafka error: %s", rd_kafka_err2str($message->err)));
+            }
         });
         $this->config->setConfiguracao($conf);
 
